@@ -12,24 +12,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 🔐 Bean para encriptar contraseñas
-    @Bean
-     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() { 
+	    return new BCryptPasswordEncoder();
+	}
 
-    //Configuración de seguridad 
     @Bean
-   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
-                //Temporal
-                //.requestMatchers("/admin/**").permitAll().anyRequest().authenticated().anyRequest().authenticated()
+                .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login")   // 👉 TU login.html
+                .loginPage("/login")
+                .loginProcessingUrl("/login") // Spring Security captura el POST aquí
                 .defaultSuccessUrl("/admin/dashboard", true)
                 .permitAll()
             )
@@ -38,6 +35,6 @@ public class SecurityConfig {
                 .permitAll()
             );
 
-        return http.build();
+        return http.build(); // <--- El return siempre va al final del método
     }
 }
