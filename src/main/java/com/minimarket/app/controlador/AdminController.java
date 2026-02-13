@@ -22,7 +22,7 @@ public class AdminController {
 
     @GetMapping("/productos")
     public String productos(Model model) {
-    
+    	model.addAttribute("productos", productoServicio.listarTodos());
         model.addAttribute("content", "admin/productos");
         return "layout/admin-layout";
     }
