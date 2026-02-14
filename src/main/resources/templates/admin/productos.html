@@ -24,24 +24,33 @@
                 <th class="p-3 text-center">Acciones</th>
             </tr>
             </thead>
-            <tbody>
-            <!-- FILA DEMO -->
-            <tr class="border-t">
-                <td class="p-3">1</td>
-                <td class="p-3">Arroz Costeño</td>
-                <td class="p-3">S/ 4.50</td>
-                <td class="p-3">120</td>
-                <td class="p-3 flex justify-center gap-2">
-                    <button onclick="openEditModal(1,'Arroz Costeño',4.5,120)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                        Editar
-                    </button>
-                    <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-                        Eliminar
-                    </button>
-                </td>
-            </tr>
-            </tbody>
+			
+			<!--recorro y lleno la tabla con la lista productos-->
+			<tbody>
+				<tr th:each="p : ${productos}" class="border-t">
+				    <td class="p-3" th:text="${p.id}">1</td>
+				    <td class="p-3" th:text="${p.nombre}">Nombre Demo</td>
+				    <td class="p-3" th:text="${'S/ ' + p.precio}">S/ 0.00</td>
+				    <td class="p-3" th:text="${p.stockActual}">0</td>
+				    <td class="p-3 flex justify-center gap-2">
+				        <button type="button"
+				                th:data-id="${p.id}"
+				                th:data-nombre="${p.nombre}"
+				                th:data-precio="${p.precio}"
+				                th:data-stock="${p.stockActual}"
+				                onclick="openEditModal(this)"
+				                class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+				            Editar
+				        </button>
+				        <a th:href="@{/productos/eliminar/{id}(id=${p.id})}" 
+				           class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+				           onclick="return confirm('¿Estás seguro de eliminar este producto?')">
+				            Eliminar
+				        </a>
+				    </td>
+				</tr>
+			</tbody>
+			
         </table>
     </div>
 </div>
@@ -108,14 +117,20 @@
         modal.classList.remove('hidden');
     }
 
-    function openEditModal(id, nombre, precio, stock) {
-        modalTitle.innerText = 'Editar producto';
-        document.getElementById('productId').value = id;
-        document.getElementById('nombre').value = nombre;
-        document.getElementById('precio').value = precio;
-        document.getElementById('stock').value = stock;
-        modal.classList.remove('hidden');
-    }
+	function openEditModal(btn) {
+	    // Extraemos los datos del atributo data-* del botón recibido
+	    const id = btn.getAttribute('data-id');
+	    const nombre = btn.getAttribute('data-nombre');
+	    const precio = btn.getAttribute('data-precio');
+	    const stock = btn.getAttribute('data-stock');
+
+	    modalTitle.innerText = 'Editar producto';
+	    document.getElementById('productId').value = id;
+	    document.getElementById('nombre').value = nombre;
+	    document.getElementById('precio').value = precio;
+	    document.getElementById('stock').value = stock;
+	    modal.classList.remove('hidden');
+	}
 
     function closeModal() {
         modal.classList.add('hidden');
