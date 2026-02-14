@@ -36,8 +36,11 @@
 				        <button type="button"
 				                th:data-id="${p.id}"
 				                th:data-nombre="${p.nombre}"
+								th:data-descripcion="${p.descripcion}"
 				                th:data-precio="${p.precio}"
 				                th:data-stock="${p.stockActual}"
+								th:data-categoria="${p.categoria != null ? p.categoria.id : ''}"
+								th:data-marca="${p.marca != null ? p.marca.id : ''}"
 				                onclick="openEditModal(this)"
 				                class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
 				            Editar
@@ -75,6 +78,12 @@
 		               class="w-full border px-3 py-2 rounded-lg">
 		    </div>
 
+			<div>
+			    <label class="block text-gray-600 mb-1">Descripción</label>
+			    <textarea id="descripcion" name="descripcion" 
+			              class="w-full border px-3 py-2 rounded-lg"></textarea>
+			</div>
+			
 		    <div>
 		        <label class="block text-gray-600 mb-1">Precio</label>
 		        <input type="number" step="0.01" id="precio" name="precio" required
@@ -86,6 +95,26 @@
 		        <input type="number" id="stock" name="stockActual" required
 		               class="w-full border px-3 py-2 rounded-lg">
 		    </div>
+			
+			<div>
+				<label class="block text-gray-600 mb-1">Marca</label>
+				<select id="marca" name="marca.id" class="w-full border px-3 py-2 rounded-lg" required>
+					<option value="">Seleccione una marca</option>
+					<option th:each="m : ${marcas}" 
+					 		th:value="${m.id}" 
+					        th:text="${m.nombre}"></option>
+				</select>
+			</div>
+					
+			<div>
+			    <label class="block text-gray-600 mb-1">Categoría</label>
+			    <select id="categoria" name="categoria.id" class="w-full border px-3 py-2 rounded-lg" required>
+			        <option value="">Seleccione una categoría</option>
+			        <option th:each="cat : ${categorias}" 
+			                th:value="${cat.id}" 
+			                th:text="${cat.nombre}"></option>
+			    </select>
+			</div>
 
 		    <div class="flex justify-end gap-3 pt-4">
 		        <button type="button" onclick="closeModal()"
@@ -112,6 +141,10 @@
         modalTitle.innerText = 'Nuevo producto';
         document.getElementById('productForm').reset();
         document.getElementById('productId').value = '';
+		// agrego los campos y aseguro que se limpien
+		document.getElementById('descripcion').value = '';
+		document.getElementById('categoria').value = '';
+		document.getElementById('marca').value = '';
         modal.classList.remove('hidden');
     }
 
@@ -127,6 +160,11 @@
 	    document.getElementById('nombre').value = nombre;
 	    document.getElementById('precio').value = precio;
 	    document.getElementById('stock').value = stock;
+		// Lleno los nuevos campos
+		document.getElementById('descripcion').value = btn.getAttribute('data-descripcion');
+		document.getElementById('categoria').value = btn.getAttribute('data-categoria');
+		document.getElementById('marca').value = btn.getAttribute('data-marca');
+		
 	    modal.classList.remove('hidden');
 	}
 
