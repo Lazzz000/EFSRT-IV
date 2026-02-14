@@ -31,8 +31,9 @@ public class ProductoControlador {
 	    // GUARDAR
 	    @PostMapping("/guardar")
 	    public String guardar(@ModelAttribute Producto producto) {
+	    	//si el id es nulo JPA crea uno nuevo o si existe lo actualiza
 	        productoServicio.guardar(producto);
-	        return "redirect:/productos";
+	        return "redirect:/admin/productos";
 	    }
 
 	    // FORM EDITAR
