@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+	
+<head>
+    <meta charset="UTF-8">
+    <title>Productos</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+	
 <body>
 
 <div>
@@ -21,34 +30,64 @@
                 <th class="p-3">Nombre</th>
                 <th class="p-3">Precio</th>
                 <th class="p-3">Stock</th>
+				<th class="p-3">Marca</th>
+				<th class="p-3">Categoría</th>
+				<th class="p-3">Estado</th>
                 <th class="p-3 text-center">Acciones</th>
             </tr>
             </thead>
-            <tbody>
-            <!-- FILA DEMO -->
-            <tr class="border-t">
-                <td class="p-3">1</td>
-                <td class="p-3">Arroz Costeño</td>
-                <td class="p-3">S/ 4.50</td>
-                <td class="p-3">120</td>
-                <td class="p-3 flex justify-center gap-2">
-                    <button onclick="openEditModal(1,'Arroz Costeño',4.5,120)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                        Editar
-                    </button>
-                    <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-                        Eliminar
-                    </button>
-                </td>
-            </tr>
-            </tbody>
+			
+			<!--recorro y lleno la tabla con la lista productos-->
+			<tbody>
+				<tr th:each="p : ${productos}" class="border-t">
+				    <td class="p-3" th:text="${p.id}">1</td>
+				    <td class="p-3" th:text="${p.nombre}">Nombre Demo</td>
+				    <td class="p-3" th:text="${'S/ ' + p.precio}">S/ 0.00</td>
+				    <td class="p-3" th:text="${p.stockActual}">0</td>
+					<td class="p-3" th:text="${p.marca != null ? p.marca.nombre : 'Sin marca'}">Marca</td>
+					<td class="p-3" th:text="${p.categoria?.nombre}">Categoria</td>
+					<td class="p-3">
+					    <span th:if="${p.activo}"
+					          class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">
+					        Activo
+					    </span>
+					    <span th:unless="${p.activo}"
+					          class="bg-red-100 text-red-700 px-2 py-1 rounded text-sm">
+					        Inactivo
+					    </span>
+					</td>
+				    <td class="p-3 flex justify-center gap-2">
+				        <button type="button"
+				                th:data-id="${p.id}"
+				                th:data-nombre="${p.nombre}"
+								th:data-descripcion="${p.descripcion}"
+				                th:data-precio="${p.precio}"
+				                th:data-stock="${p.stockActual}"
+								th:data-categoria="${p.categoria != null ? p.categoria.id : ''}"
+								th:data-marca="${p.marca != null ? p.marca.id : ''}"
+								th:data-activo="${p.activo}"
+				                onclick="openEditModal(this)"
+				                class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+				            Editar
+				        </button>
+						<button type="button"
+								th:data-url="@{/productos/eliminar/{id}(id=${p.id})}"
+						        th:data-nombre="${p.nombre}"
+						        onclick="openDeleteModal(this)"
+						        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+						    Eliminar
+						</button>
+				    </td>
+				</tr>
+			</tbody>
+			
         </table>
     </div>
 </div>
 
 <!-- MODAL -->
 <div id="productModal"
-     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
 
     <div class="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
 
@@ -56,43 +95,119 @@
             Nuevo producto
         </h2>
 
-        <form id="productForm" class="space-y-4">
+		<form id="productForm" th:action="@{/productos/guardar}" method="post" class="space-y-4">
 
-            <input type="hidden" id="productId">
+		    <input type="hidden" id="productId" name="id">
 
-            <div>
-                <label class="block text-gray-600 mb-1">Nombre</label>
-                <input type="text" id="nombre"
-                       class="w-full border px-3 py-2 rounded-lg">
-            </div>
+		    <div>
+		        <label class="block text-gray-600 mb-1">Nombre</label>
+		        <input type="text" id="nombre" name="nombre" required
+		               class="w-full border px-3 py-2 rounded-lg">
+		    </div>
 
-            <div>
-                <label class="block text-gray-600 mb-1">Precio</label>
-                <input type="number" step="0.01" id="precio"
-                       class="w-full border px-3 py-2 rounded-lg">
-            </div>
+			<div>
+			    <label class="block text-gray-600 mb-1">Descripción</label>
+			    <textarea id="descripcion" name="descripcion" 
+			              class="w-full border px-3 py-2 rounded-lg"></textarea>
+			</div>
+			
+		    <div>
+		        <label class="block text-gray-600 mb-1">Precio</label>
+		        <input type="number" step="0.01" id="precio" name="precio" required
+		               class="w-full border px-3 py-2 rounded-lg">
+		    </div>
 
-            <div>
-                <label class="block text-gray-600 mb-1">Stock</label>
-                <input type="number" id="stock"
-                       class="w-full border px-3 py-2 rounded-lg">
-            </div>
+		    <div>
+		        <label class="block text-gray-600 mb-1">Stock</label>
+		        <input type="number" id="stock" name="stockActual" required
+		               class="w-full border px-3 py-2 rounded-lg">
+		    </div>
+			
+			<div>
+				<label class="block text-gray-600 mb-1">Marca</label>
+				<select id="marca" name="marca.id" class="w-full border px-3 py-2 rounded-lg" required>
+					<option value="">Seleccione una marca</option>
+					<option th:each="m : ${marcas}" 
+					 		th:value="${m.id}" 
+					        th:text="${m.nombre}"></option>
+				</select>
+			</div>
+					
+			<div>
+			    <label class="block text-gray-600 mb-1">Categoría</label>
+			    <select id="categoria" name="categoria.id" class="w-full border px-3 py-2 rounded-lg" required>
+			        <option value="">Seleccione una categoría</option>
+			        <option th:each="cat : ${categorias}" 
+			                th:value="${cat.id}" 
+			                th:text="${cat.nombre}"></option>
+			    </select>
+			</div>
+			
+			<div class="flex items-center gap-2">
+			    <input type="checkbox"
+			           id="activo"
+			           name="activo"
+			           class="w-4 h-4 text-blue-600 border-gray-300 rounded">
 
-            <div class="flex justify-end gap-3 pt-4">
-                <button type="button"
-                        onclick="closeModal()"
-                        class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">
-                    Cancelar
-                </button>
+			    <label for="activo" class="text-gray-600">
+			        Activo
+			    </label>
+			</div>
 
-                <button type="submit"
-                        class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white">
-                    Guardar
-                </button>
-            </div>
+		    <div class="flex justify-end gap-3 pt-4">
+		        <button type="button" onclick="closeModal()"
+		                class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">
+		            Cancelar
+		        </button>
 
-        </form>
+		        <button type="submit"
+		                class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white">
+		            Guardar Cambios
+		        </button>
+		    </div>
+		</form>
 
+    </div>
+</div>
+
+<!--agrego el modal eliminar-->
+<div id="deleteModal"
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden  z-50">
+
+    <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
+        
+       
+        <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+				d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+
+        <h2 class="text-xl font-bold mb-2 text-center text-gray-800">
+            ¿Eliminar Producto?
+        </h2>
+
+        <p class="text-gray-600 text-center mb-2">
+            Estás a punto de eliminar permanentemente el producto:
+        </p>
+        
+        <p class="text-center font-semibold text-lg text-gray-900 mb-6" id="deleteProductName">
+            Nombre del Producto
+        </p>
+
+        <div class="flex justify-center gap-4">
+            <button type="button" onclick="closeDeleteModal()"
+                    class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium w-36">
+                Cancelar
+            </button>
+
+            <a id="confirmDeleteBtn" 
+               href="#" 
+               class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium w-36 text-center">
+                Sí, Eliminar
+            </a>
+        </div>
     </div>
 </div>
 
@@ -100,26 +215,63 @@
 <script>
     const modal = document.getElementById('productModal');
     const modalTitle = document.getElementById('modalTitle');
+	//agrego las variables para el deletemodal
+	const deleteModal = document.getElementById('deleteModal');
+	const deleteProductName = document.getElementById('deleteProductName');
+	const confirmDeleteBtn = document.getElementById('confirmDeleteBtn')
 
     function openCreateModal() {
         modalTitle.innerText = 'Nuevo producto';
         document.getElementById('productForm').reset();
         document.getElementById('productId').value = '';
+		// agrego los campos y aseguro que se limpien
+		document.getElementById('descripcion').value = '';
+		document.getElementById('categoria').value = '';
+		document.getElementById('marca').value = '';
         modal.classList.remove('hidden');
     }
 
-    function openEditModal(id, nombre, precio, stock) {
-        modalTitle.innerText = 'Editar producto';
-        document.getElementById('productId').value = id;
-        document.getElementById('nombre').value = nombre;
-        document.getElementById('precio').value = precio;
-        document.getElementById('stock').value = stock;
-        modal.classList.remove('hidden');
-    }
+	function openEditModal(btn) {
+	    // Extraemos los datos del atributo data-* del botón recibido
+	    const id = btn.getAttribute('data-id');
+	    const nombre = btn.getAttribute('data-nombre');
+	    const precio = btn.getAttribute('data-precio');
+	    const stock = btn.getAttribute('data-stock');
+
+		const activo = btn.getAttribute('data-activo') === 'true';
+		document.getElementById('activo').checked = activo;
+
+	    modalTitle.innerText = 'Editar producto';
+	    document.getElementById('productId').value = id;
+	    document.getElementById('nombre').value = nombre;
+	    document.getElementById('precio').value = precio;
+	    document.getElementById('stock').value = stock;
+		// Lleno los nuevos campos
+		document.getElementById('descripcion').value = btn.getAttribute('data-descripcion');
+		document.getElementById('categoria').value = btn.getAttribute('data-categoria');
+		document.getElementById('marca').value = btn.getAttribute('data-marca');
+		
+	    modal.classList.remove('hidden');
+	}
 
     function closeModal() {
         modal.classList.add('hidden');
     }
+	
+	function openDeleteModal(btn) {
+	       // Obtengo la URL generada por Thymeleaf y el nombre
+	       const url = btn.getAttribute('data-url');
+	       const nombre = btn.getAttribute('data-nombre');    
+	       // actualizo el contenido del modal
+	       deleteProductName.innerText = nombre;
+	       confirmDeleteBtn.href = url;
+	       // mostramos el modal
+	       deleteModal.classList.remove('hidden');
+	   }
+
+	   function closeDeleteModal() {
+	       deleteModal.classList.add('hidden');
+	   }
 </script>
 
 </body>
